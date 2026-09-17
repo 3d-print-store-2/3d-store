@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D PRINT - طلب خاص</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #030305;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* خلفية متوهجة */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 20%, rgba(255, 0, 85, 0.08) 0%, rgba(3, 3, 5, 0.98) 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* زر العودة للداشبورد */
+    .back-btn {
+      align-self: flex-start;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto 20px auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #00d2ff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      color: #ff0055;
+      transform: translateX(5px);
+    }
+
+    /* الحاوية الرئيسية */
+    .container {
+      width: 100%;
+      max-width: 750px;
+      background: rgba(18, 22, 33, 0.75);
+      border: 1px solid rgba(255, 0, 85, 0.2);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      padding: 35px 25px;
+      backdrop-filter: blur(12px);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #ffffff, #ff0055);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #8a90a2;
+      font-size: 0.95rem;
+    }
+
+    /* عناصر النموذج */
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #e0e5f0;
+      font-size: 0.95rem;
+    }
+
+    .form-group label i {
+      color: #ff0055;
+      margin-left: 6px;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 14px;
+      background: rgba(8, 10, 15, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #ff0055;
+      box-shadow: 0 0 12px rgba(255, 0, 85, 0.3);
+    }
+
+    /* خيارات نوع الطلب (تبويب) */
+    .order-type-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .type-btn {
+      padding: 14px;
+      background: rgba(8, 10, 15, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #8a90a2;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .type-btn.active {
+      background: rgba(255, 0, 85, 0.15);
+      border-color: #ff0055;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
+    }
+
+    /* منطقة رفع الملفات */
+    .file-upload-box {
+      border: 2px dashed rgba(0, 210, 255, 0.3);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      background: rgba(0, 210, 255, 0.02);
+      cursor: pointer;
+      transition: 0.3s;
+      position: relative;
+    }
+
+    .file-upload-box:hover {
+      border-color: #00d2ff;
+      background: rgba(0, 210, 255, 0.05);
+    }
+
+    .file-upload-box i {
+      font-size: 2.2rem;
+      color: #00d2ff;
+      margin-bottom: 10px;
+    }
+
+    .file-upload-box p {
+      font-size: 0.9rem;
+      color: #a0a5b5;
+    }
+
+    .file-upload-box input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-name-display {
+      margin-top: 10px;
+      color: #00d2ff;
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+
+    /* الشبكة المزدوجة للمواصفات */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    /* زر الإرسال */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #ff0055, #ff5500);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 5px 20px rgba(255, 0, 85, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 0, 85, 0.6);
+    }
+
+    @media (max-width: 600px) {
+      .specs-grid {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 25px 18px;
+      }
+      .header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+
+  <!-- زر العودة -->
+  <a href="dashboard.html" class="back-btn">
+    <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+  </a>
+
+  <div class="container">
+    <div class="header">
+      <h1><i class="fa-solid fa-cube"></i> طلب طباعة خاص</h1>
+      <p>ارفع ملفك الـ 3D أو اكتب فكرتك وسنتواصل معك بتفاصيل التكلفة فوراً</p>
+    </div>
+
+    <form id="customOrderForm">
+      
+      <!-- 1. البيانات الشخصية -->
+      <div class="specs-grid">
+        <div class="form-group">
+          <label><i class="fa-solid fa-user"></i> الاسم الكريم</label>
+          <input type="text" id="custName" placeholder="أدخل اسمك" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-brands fa-whatsapp"></i> رقم الواتساب</label>
+          <input type="tel" id="custPhone" placeholder="01xxxxxxxxx" required>
+        </div>
+      </div>
+
+      <!-- 2. تحديد نوع الطلب -->
+      <div class="form-group">
+        <label><i class="fa-solid fa-layer-group"></i> نوع الطلب</label>
+        <div class="order-type-selector">
+          <div class="type-btn active" id="btnTypeFile" onclick="switchType('file')">
+            <i class="fa-solid fa-file-code"></i> عندي ملف 3D جاهز
+          </div>
+          <div class="type-btn" id="btnTypeIdea" onclick="switchType('idea')">
+            <i class="fa-solid fa-lightbulb"></i> عندي فكرة / صورة
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. قسم رفع الملف (يظهر عند اختيار "ملف جاهز") -->
+      <div class="form-group" id="fileSection">
+        <label><i class="fa-solid fa-cloud-arrow-up"></i> رفع ملف المجسم (.STL, .OBJ, .3MF)</label>
+        <div class="file-upload-box">
+          <i class="fa-solid fa-file-arrow-up"></i>
+          <p>اضغط هنا لرفع الملف أو اسحبه داخل المربع</p>
+          <input type="file" id="fileInput" accept=".stl,.obj,.3mf,.zip,.rar" onchange="showFileName(this)">
+          <div class="file-name-display" id="fileName"></div>
+        </div>
+      </div>
+
+      <!-- 4. مواصفات الطباعة -->
+      <div class="specs-grid">
+        <div class="form-group">
+          <label><i class="fa-solid fa-flask"></i> نوع الخامة</label>
+          <select id="material">
+            <option value="PLA (قياسي ورائع للتفاصيل)">PLA (قياسي ورائع للتفاصيل)</option>
+            <option value="PETG (قوي ومقاوم للحرارة)">PETG (قوي ومقاوم للحرارة)</option>
+            <option value="ABS (صدمات وتحمل عالي)">ABS (صدمات وتحمل عالي)</option>
+            <option value="Resin (دقة فائقة للمجسمات الصغيرة)">Resin (دقة فائقة جداً)</option>
+            <option value="اقترحوا عليّ الأنسب">اقترحوا عليّ الأنسب</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fa-solid fa-palette"></i> اللون المطلوب</label>
+          <input type="text" id="color" placeholder="مثال: أسود مط، أبيض، ذهبي...">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fa-solid fa-ruler-combined"></i> الأبعاد / المقاسات المتوقعة (اختياري)</label>
+        <input type="text" id="dimensions" placeholder="مثال: الارتفاع 15 سم">
+      </div>
+
+      <!-- 5. تفاصيل إضافية -->
+      <div class="form-group">
+        <label><i class="fa-solid fa-message"></i> تفاصيل الفكرة أو ملاحظات إضافية</label>
+        <textarea id="notes" rows="4" placeholder="اشرح فكرتك بالتفصيل أو اترك أي ملاحظات تهمك..."></textarea>
+      </div>
+
+      <!-- زر الإرسال -->
+      <button type="button" class="submit-btn" onclick="sendOrder()">
+        <i class="fa-brands fa-whatsapp"></i> إرسال الطلب عبر الواتساب
+      </button>
+
+    </form>
+  </div>
+
+  <script>
+    let currentType = 'file';
+
+    function switchType(type) {
+      currentType = type;
+      const btnFile = document.getElementById('btnTypeFile');
+      const btnIdea = document.getElementById('btnTypeIdea');
+      const fileSection = document.getElementById('fileSection');
+
+      if (type === 'file') {
+        btnFile.classList.add('active');
+        btnIdea.classList.remove('active');
+        fileSection.style.display = 'block';
+      } else {
+        btnIdea.classList.add('active');
+        btnFile.classList.remove('active');
+        fileSection.style.display = 'none';
+      }
+    }
+
+    function showFileName(input) {
+      const fileNameDiv = document.getElementById('fileName');
+      if (input.files && input.files[0]) {
+        fileNameDiv.innerText = "الملف المحدد: " + input.files[0].name;
+      }
+    }
+
+    function sendOrder() {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const material = document.getElementById('material').value;
+      const color = document.getElementById('color').value.trim() || 'غير محدد';
+      const dimensions = document.getElementById('dimensions').value.trim() || 'غير محددة';
+      const notes = document.getElementById('notes').value.trim() || 'لا يوجد';
+      const fileInput = document.getElementById('fileInput');
+
+      if (!name || !phone) {
+        alert('يرجى كتابة الاسم ورقم الواتساب أولاً!');
+        return;
+      }
+
+      // تجهيز نص الرسالة للواتساب
+      let myNumber = "201061182930"; // رقم الواتساب الخاص بك
+      
+      let msg = `*طلب طباعة 3D جديد*%0a%0a`;
+      msg += `👤 *الاسم:* ${name}%0a`;
+      msg += `📞 *الواتساب:* ${phone}%0a`;
+      msg += `📌 *نوع الطلب:* ${currentType === 'file' ? 'ملف 3D جاهز' : 'تصميم فكرة جديد'}%0a`;
+      
+      if (currentType === 'file' && fileInput.files[0]) {
+        let rawFileName = fileInput.files[0].name;
+        msg += `📁 *اسم الملف:* \u200E${rawFileName}\u200E%0a`;
+      }
+      
+      msg += `🧪 *الخامة:* ${material}%0a`;
+      msg += `🎨 *اللون:* ${color}%0a`;
+      msg += `📐 *الأبعاد:* ${dimensions}%0a`;
+      msg += `📝 *ملاحظات:* ${notes}%0a`;
+
+      // فتح محادثة الواتساب
+      window.open(`https://wa.me/${myNumber}?text=${msg}`, '_blank');
+    }
+  </script>
+</body>
+</html>
